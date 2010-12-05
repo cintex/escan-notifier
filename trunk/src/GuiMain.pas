@@ -594,6 +594,7 @@ end;
 
 procedure TMainForm.SettingsExecute(Sender: TObject);
 begin
+  SettingsForm.ModalResult := mrNone;
   if SettingsForm.ShowModal = mrOk then
   begin
     ApplySettings.Execute;
@@ -603,8 +604,6 @@ end;
 procedure TMainForm.ApplySettingsExecute(Sender: TObject);
 begin
   MP3In.FileName := SettingsForm.ScanSound.Text;
-  if not FileExists(MP3In.FileName) then
-    MP3In.FileName := SoundPath + SettingsForm.ScanSound.Text;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
