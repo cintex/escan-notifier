@@ -522,7 +522,7 @@ begin
         begin
           Tray.IconIndex := ICO_IDLE;
 
-          if FEpsonStatus = es_preview then
+          if FEpsonStatus = es_scanning then
           begin
             DSAudioOut.Run;
             MouseIdleCount := 0;
