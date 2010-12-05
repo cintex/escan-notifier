@@ -1,22 +1,22 @@
 (* ***** BEGIN LICENSE BLOCK *****
- * Version: GNU GPL 2.0
- *
- * The contents of this file are subject to the
- * GNU General Public License Version 2.0; you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * http://www.gnu.org/licenses/gpl.html
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is GuiMain (https://code.google.com/p/escan-notifier/)
- *
- * The Initial Developer of the Original Code is
- * Yann Papouin <yann.papouin at @ gmail.com>
- *
- * ***** END LICENSE BLOCK ***** *)
+  * Version: GNU GPL 2.0
+  *
+  * The contents of this file are subject to the
+  * GNU General Public License Version 2.0; you may not use this file except
+  * in compliance with the License. You may obtain a copy of the License at
+  * http://www.gnu.org/licenses/gpl.html
+  *
+  * Software distributed under the License is distributed on an "AS IS" basis,
+  * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+  * for the specific language governing rights and limitations under the
+  * License.
+  *
+  * The Original Code is GuiMain (https://code.google.com/p/escan-notifier/)
+  *
+  * The Initial Developer of the Original Code is
+  * Yann Papouin <yann.papouin at @ gmail.com>
+  *
+  * ***** END LICENSE BLOCK ***** *)
 
 unit GuiMain;
 
@@ -442,7 +442,7 @@ begin
   begin
     AWindow := FWindowList[I];
 
-    //if (Pos('escndv.exe', GetProcessNameFromWnd(AWindow.Handle)) > 0) then
+    // if (Pos('escndv.exe', GetProcessNameFromWnd(AWindow.Handle)) > 0) then
     begin
       FChildrenList.Clear;
       EnumChildWindows(AWindow.Handle, @EnumChildren, 0);
@@ -500,8 +500,6 @@ begin
   FLastPosition := CurrentPosition;
 end;
 
-
-
 procedure TMainForm.NewVersionAvailableExecute(Sender: TObject);
 begin
   UpdateManagerForm.ShowModal;
@@ -553,16 +551,22 @@ end;
 procedure TMainForm.Play;
 begin
   if FileExists(MP3In.FileName) then
-    DSAudioOut.Run
+  begin
+    if not(DSAudioOut.Status = tosPlaying) then
+      DSAudioOut.Run
+  end
   else
     Beep;
 end;
 
 procedure TMainForm.SetMouseIdleCount(const Value: integer);
 begin
-  FMouseIdleCount := Value;
+  if (DSAudioOut.Status = tosPlaying) then
+    FMouseIdleCount := 0
+  else
+    FMouseIdleCount := Value;
 
-  if (FMouseIdleCount >= 10) and not (DSAudioOut.Status = tosPlaying) then
+  if (FMouseIdleCount >= 30) then
   begin
     FMouseIdleCount := 0;
     Play;
@@ -571,7 +575,7 @@ end;
 
 procedure TMainForm.AboutExecute(Sender: TObject);
 begin
-  AboutForm.Showmodal;
+  AboutForm.ShowModal;
 end;
 
 procedure TMainForm.ApplicationRunExecute(Sender: TObject);
@@ -592,12 +596,11 @@ begin
   end;
 end;
 
-
 procedure TMainForm.ApplySettingsExecute(Sender: TObject);
 begin
   MP3In.FileName := SettingsForm.ScanSound.Text;
   if not FileExists(MP3In.FileName) then
-    MP3In.FileName := SoundPath +  SettingsForm.ScanSound.Text;
+    MP3In.FileName := SoundPath + SettingsForm.ScanSound.Text;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -605,23 +608,22 @@ begin
   DSAudioOut.Stop(False);
 end;
 
-
 procedure TMainForm.UpdateReply(Sender: TObject; Result: TUpdateResult);
 begin
-  NewVersionAvailable.Enabled := true;
+  NewVersionAvailable.Enabled := True;
   if Result = rs_UpdateFound then
   begin
     if not NewVersionAvailable.Visible then
     begin
-      NewVersionAvailable.Visible := true;
+      NewVersionAvailable.Visible := True;
       NewVersionAvailable.Execute;
     end
     else
-      NewVersionAvailable.Visible := true;
+      NewVersionAvailable.Visible := True;
   end
-    else
+  else
   begin
-    NewVersionAvailable.Visible := false;
+    NewVersionAvailable.Visible := False;
   end;
 end;
 
