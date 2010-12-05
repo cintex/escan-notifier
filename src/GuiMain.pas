@@ -526,6 +526,10 @@ begin
             MouseIdleCount := 0;
             MouseIdleCheck.Enabled := True;
             GetCursorPos(FLastPosition);
+          end
+          else if FEpsonStatus = es_preview then
+          begin
+            Beep;
           end;
 
         end;

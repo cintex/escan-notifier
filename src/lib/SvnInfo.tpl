@@ -11,7 +11,7 @@
  * for the specific language governing rights and limitations under the
  * License.
  *
- * The Original Code is SvnInfo (http://code.google.com/p/bga)
+ * The Original Code is SvnInfo (http://code.google.com/p/escan-notifier)
  *
  * The Initial Developer of the Original Code is
  * Yann Papouin <yann.papouin at @ gmail.com>
