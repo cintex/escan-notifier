@@ -72,6 +72,12 @@ type
     MP3In: TMP3In;
     AudioCache: TAudioCache;
     DSAudioOut: TDSAudioOut;
+    SendMail: TSpTBXCheckBox;
+    EMailAddress: TSpTBXEdit;
+    SmtpUsername: TSpTBXEdit;
+    SmtpPassword: TSpTBXEdit;
+    SmtpHost: TSpTBXEdit;
+    SmtpPort: TSpTBXSpinEdit;
     procedure OkExecute(Sender: TObject);
     procedure CancelExecute(Sender: TObject);
     procedure ScanSoundChange(Sender: TObject);
@@ -236,8 +242,11 @@ end;
 procedure TSettingsForm.PlayExecute(Sender: TObject);
 begin
   MP3In.Filename := ScanSound.Text;
-  DSAudioOut.Run;
-  SoundTest.Action := Stop;
+  if FileExists(MP3In.Filename) then
+  begin
+    DSAudioOut.Run;
+    SoundTest.Action := Stop;
+  end;
 end;
 
 procedure TSettingsForm.StopExecute(Sender: TObject);

@@ -54,6 +54,10 @@ object MainForm: TMainForm
       ImageIndex = 14
       OnExecute = AboutExecute
     end
+    object test: TAction
+      Caption = 'test'
+      OnExecute = testExecute
+    end
   end
   object Checker: TTimer
     Interval = 2000
@@ -569,7 +573,7 @@ object MainForm: TMainForm
   object MP3In: TMP3In
     Loop = False
     EndSample = -1
-    HighPrecision = False
+    HighPrecision = True
     OutputChannels = cnMonoOrStereo
     Left = 8
     Top = 72
@@ -605,6 +609,38 @@ object MainForm: TMainForm
   object MouseIdleCheck: TTimer
     OnTimer = MouseIdleCheckTimer
     Left = 72
+    Top = 40
+  end
+  object SMTP: TIdSMTP
+    IOHandler = SSLIOHandler
+    SASLMechanisms = <>
+    UseTLS = utUseExplicitTLS
+    Left = 104
+    Top = 40
+  end
+  object MailMessage: TIdMessage
+    AttachmentEncoding = 'MIME'
+    BccList = <>
+    CCList = <>
+    Encoding = meDefault
+    FromList = <
+      item
+      end>
+    Recipients = <>
+    ReplyTo = <>
+    ConvertPreamble = True
+    Left = 136
+    Top = 40
+  end
+  object SSLIOHandler: TIdSSLIOHandlerSocketOpenSSL
+    Destination = ':25'
+    MaxLineAction = maException
+    Port = 25
+    DefaultPort = 0
+    SSLOptions.Mode = sslmUnassigned
+    SSLOptions.VerifyMode = []
+    SSLOptions.VerifyDepth = 0
+    Left = 168
     Top = 40
   end
 end

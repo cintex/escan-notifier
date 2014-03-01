@@ -23,6 +23,7 @@ unit GuiMain;
 interface
 
 uses
+  JvGnugettext,
   Windows,
   Messages,
   SysUtils,
@@ -32,6 +33,7 @@ uses
   Controls,
   Forms,
   Dialogs,
+  Mapi,
   JclFileUtils,
   ActnList,
   SpTBXItem,
@@ -58,7 +60,12 @@ uses
   NewACDSAudio,
   JvAppXMLStorage,
   JvAppInst,
-  GuiUpdateManager;
+  GuiUpdateManager, IdContext, IdBaseComponent, IdComponent, IdCustomTCPServer,
+  IdTCPServer, IdCmdTCPServer, IdExplicitTLSClientServerBase, IdSMTPServer,
+  IdEMailAddress, IdTCPConnection, IdTCPClient, IdMessageClient, IdSMTPBase, IdSMTP,
+
+  IdAttachmentFile,
+  IdMessage, IdIOHandler, IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL;
 
 type
 
@@ -97,6 +104,10 @@ type
     NewVersionAvailable: TAction;
     About: TAction;
     SpTBXItem4: TSpTBXItem;
+    SMTP: TIdSMTP;
+    MailMessage: TIdMessage;
+    SSLIOHandler: TIdSSLIOHandlerSocketOpenSSL;
+    test: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FindProgressExecute(Sender: TObject);
@@ -109,8 +120,8 @@ type
     procedure MouseIdleCheckTimer(Sender: TObject);
     procedure NewVersionAvailableExecute(Sender: TObject);
     procedure AboutExecute(Sender: TObject);
+    procedure testExecute(Sender: TObject);
   private
-    { Déclarations privées }
     FWindowList: TWindowList;
     FChildrenList: TWindowList;
     FPreviewWindow: TWindow;
@@ -122,10 +133,11 @@ type
     procedure SetEpsonStatus(const Value: TEpsonStatus);
     procedure SetMouseIdleCount(const Value: integer);
     procedure UpdateReply(Sender: TObject; Result: TUpdateResult);
+    function MailSend(Subject: string; Body: string = ''): Boolean;
   public
-    { Déclarations publiques }
-
     AppPath, DataPath, SharePath, SoundPath: string;
+    MailAttachments: TStringList;
+    MailBody: TStringList;
     procedure Play;
     property EpsonStatus: TEpsonStatus read FEpsonStatus write SetEpsonStatus;
     property MouseIdleCount: integer read FMouseIdleCount write SetMouseIdleCount;
@@ -141,6 +153,7 @@ implementation
 uses
   GuiAbout,
   GuiSettings,
+  ComObj,
   PsAPI,
   TlHelp32;
 
@@ -393,6 +406,111 @@ begin
   end;
 end;
 
+
+procedure SendMail(const Subject: string; const Body: string);
+var
+  SMTP: TIdSMTP;
+  Email: TIdMessage;
+  SSLHandler: TIdSSLIOHandlerSocketOpenSSL;
+begin
+  SMTP := TIdSMTP.Create(nil);
+  Email := TIdMessage.Create(nil);
+  SSLHandler := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
+
+  try
+    //SSLHandler.MaxLineAction := maException;
+    SSLHandler.SSLOptions.Method := sslvTLSv1;
+    SSLHandler.SSLOptions.Mode := sslmUnassigned;
+    SSLHandler.SSLOptions.VerifyMode := [];
+    SSLHandler.SSLOptions.VerifyDepth := 0;
+
+    SMTP.IOHandler := SSLHandler;
+    SMTP.Host := SettingsForm.SmtpHost.Text;
+    SMTP.Port := SettingsForm.SmtpPort.SpinOptions.ValueAsInteger;
+    SMTP.Username := SettingsForm.SmtpUsername.Text;
+    SMTP.Password := SettingsForm.SmtpPassword.Text;
+    SMTP.UseTLS := utUseExplicitTLS;
+
+    Email.From.Address := SettingsForm.EMailAddress.Text;
+    Email.Recipients.EmailAddresses := SettingsForm.EMailAddress.Text;
+    Email.Subject := Subject;
+    Email.Body.Text := Body;
+
+    SMTP.Connect;
+    SMTP.Send(Email);
+    SMTP.Disconnect;
+
+  finally
+    SMTP.Free;
+    Email.Free;
+    SSLHandler.Free;
+  end;
+end;
+
+
+
+function TMainForm.MailSend(Subject: string; Body: string = ''): Boolean;
+var
+  i: integer;
+  MailItem: TIdEMailAddressItem;
+begin
+  Result := False;
+
+  // Setup SMTP
+  SMTP.Host := SettingsForm.SmtpHost.Text;
+  SMTP.Port := SettingsForm.SmtpPort.SpinOptions.ValueAsInteger;
+  SMTP.Username := SettingsForm.SmtpUsername.Text;
+  SMTP.Password := SettingsForm.SmtpPassword.Text;
+
+  // Setup mail message
+  MailMessage.Clear;
+  MailMessage.From.Address := SettingsForm.EMailAddress.Text;
+
+  MailItem := MailMessage.Recipients.Add;
+  MailItem.Text := SettingsForm.EMailAddress.Text;
+
+
+  MailMessage.Subject := Format('[EScanNotifier] %s', [Subject]);
+
+  if MailBody.Count > 0 then
+    MailMessage.Body.Text := MailBody.Text
+  else
+  if Body <> EmptyStr then
+    MailMessage.Body.Text := Body
+  else
+    if MailAttachments.Count > 0 then
+      MailMessage.Body.Text := _('(See attachments)');
+
+
+  for i := 0 to MailAttachments.Count-1 do
+  if FileExists(MailAttachments[i]) then
+    TIdAttachmentFile.Create(MailMessage.MessageParts, MailAttachments[i]);
+
+  // Send mail
+  try
+    try
+      SMTP.ReadTimeout := 10000;
+      SMTP.Connect;
+      SMTP.Send(MailMessage);
+      Result := True;
+    except on E:Exception do
+      Showmessage( 'ERROR: ' + E.Message + SysErrorMessage(GetLastError));
+    end;
+  finally
+    try
+      if SMTP.Connected then
+        SMTP.Disconnect;
+    except on E:Exception do
+      Showmessage( 'ERROR: ' + E.Message + SysErrorMessage(GetLastError));
+    end;
+  end;
+
+  MailBody.Clear;
+  MailAttachments.Clear;
+end;
+
+
+
 procedure TMainForm.CheckerTimer(Sender: TObject);
 var
   Info: tagWINDOWINFO;
@@ -475,10 +593,14 @@ begin
 
   FWindowList := TWindowList.Create;
   FChildrenList := TWindowList.Create;
+  MailAttachments := TStringList.Create;
+  MailBody := TStringList.Create;
 end;
 
 procedure TMainForm.FormDestroy(Sender: TObject);
 begin
+  MailBody.Free;
+  MailAttachments.Free;
   FChildrenList.Free;
   FWindowList.Free;
 end;
@@ -511,6 +633,11 @@ begin
   Close;
 end;
 
+procedure TMainForm.testExecute(Sender: TObject);
+begin
+  MailSend('Test', 'Test message');
+end;
+
 procedure TMainForm.SetEpsonStatus(const Value: TEpsonStatus);
 begin
   if Value <> FEpsonStatus then
@@ -526,6 +653,11 @@ begin
             MouseIdleCount := 0;
             MouseIdleCheck.Enabled := True;
             GetCursorPos(FLastPosition);
+
+            if SettingsForm.SendMail.Checked then
+            begin
+              MailSend('Notification', 'Job completed');
+            end;
           end
           else if FEpsonStatus = es_preview then
           begin
