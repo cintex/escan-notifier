@@ -3,7 +3,7 @@ object SettingsForm: TSettingsForm
   Top = 0
   BorderStyle = bsSingle
   Caption = 'Settings'
-  ClientHeight = 387
+  ClientHeight = 502
   ClientWidth = 586
   Color = clBtnFace
   Constraints.MinHeight = 330
@@ -24,7 +24,7 @@ object SettingsForm: TSettingsForm
     Left = 0
     Top = 0
     Width = 586
-    Height = 387
+    Height = 502
     Caption = 'Background'
     Align = alClient
     Padding.Left = 5
@@ -34,12 +34,11 @@ object SettingsForm: TSettingsForm
     TabOrder = 0
     Borders = False
     TBXStyleBackground = True
-    ExplicitWidth = 434
-    ExplicitHeight = 297
+    ExplicitHeight = 459
     object Footer: TSpTBXPanel
       AlignWithMargins = True
       Left = 5
-      Top = 349
+      Top = 464
       Width = 576
       Height = 33
       Margins.Left = 0
@@ -50,8 +49,7 @@ object SettingsForm: TSettingsForm
       UseDockManager = True
       TabOrder = 0
       Borders = False
-      ExplicitTop = 259
-      ExplicitWidth = 424
+      ExplicitTop = 421
       object ButtonOk: TSpTBXButton
         AlignWithMargins = True
         Left = 339
@@ -61,9 +59,9 @@ object SettingsForm: TSettingsForm
         Action = Ok
         Align = alRight
         TabOrder = 0
+        DrawPushedCaption = False
         Images = MainForm.Images
         ImageIndex = 8
-        ExplicitLeft = 187
       end
       object ButtonCancel: TSpTBXButton
         AlignWithMargins = True
@@ -74,9 +72,9 @@ object SettingsForm: TSettingsForm
         Action = Cancel
         Align = alRight
         TabOrder = 1
+        DrawPushedCaption = False
         Images = MainForm.Images
         ImageIndex = 9
-        ExplicitLeft = 307
       end
     end
     object SpTBXGroupBox1: TSpTBXGroupBox
@@ -88,7 +86,6 @@ object SettingsForm: TSettingsForm
       Caption = 'Inspector settings'
       Align = alTop
       TabOrder = 1
-      ExplicitWidth = 418
       DesignSize = (
         570
         224)
@@ -101,7 +98,6 @@ object SettingsForm: TSettingsForm
         TabOrder = 0
         Text = 'Preview scan in progress'
         OnChange = LabelChange
-        ExplicitWidth = 387
       end
       object ScanLabel: TSpTBXEdit
         Left = 16
@@ -112,13 +108,12 @@ object SettingsForm: TSettingsForm
         TabOrder = 1
         Text = 'Scanning'
         OnChange = LabelChange
-        ExplicitWidth = 387
       end
       object SpTBXLabel1: TSpTBXLabel
         Left = 16
         Top = 88
-        Width = 92
-        Height = 19
+        Width = 112
+        Height = 22
         Caption = 'Preview label text'
         Images = MainForm.Images
         ImageIndex = 6
@@ -126,8 +121,8 @@ object SettingsForm: TSettingsForm
       object SpTBXLabel2: TSpTBXLabel
         Left = 16
         Top = 143
-        Width = 77
-        Height = 19
+        Width = 97
+        Height = 22
         Caption = 'Scan label text'
         Images = MainForm.Images
         ImageIndex = 1
@@ -153,7 +148,6 @@ object SettingsForm: TSettingsForm
           'Russian'
           'Spanish'
           'Ukrainian')
-        ExplicitWidth = 387
       end
       object SpTBXLabel4: TSpTBXLabel
         Left = 16
@@ -170,15 +164,14 @@ object SettingsForm: TSettingsForm
       Left = 8
       Top = 238
       Width = 570
-      Height = 91
+      Height = 203
       Caption = 'Notification settings'
       Align = alTop
       TabOrder = 2
-      ExplicitTop = 159
-      ExplicitWidth = 418
+      ExplicitLeft = -72
       DesignSize = (
         570
-        91)
+        203)
       object ScanSound: TSpTBXComboBox
         Left = 16
         Top = 52
@@ -188,13 +181,12 @@ object SettingsForm: TSettingsForm
         ItemHeight = 13
         TabOrder = 1
         OnChange = ScanSoundChange
-        ExplicitWidth = 355
       end
       object SpTBXLabel3: TSpTBXLabel
         Left = 16
         Top = 24
-        Width = 92
-        Height = 19
+        Width = 112
+        Height = 22
         Caption = 'Sound notification'
         Images = MainForm.Images
         ImageIndex = 10
@@ -206,9 +198,71 @@ object SettingsForm: TSettingsForm
         Height = 21
         Action = Play
         Anchors = [akTop, akRight]
+        DrawPushedCaption = False
         Images = MainForm.Images
         ImageIndex = 15
-        ExplicitLeft = 450
+      end
+      object SendMail: TSpTBXCheckBox
+        Left = 19
+        Top = 79
+        Width = 94
+        Height = 21
+        Caption = 'Send an e.mail'
+        TabOrder = 3
+      end
+      object EMailAddress: TSpTBXEdit
+        Left = 16
+        Top = 106
+        Width = 321
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 4
+        TextHint = 'username@mail.com'
+      end
+      object SmtpUsername: TSpTBXEdit
+        Left = 16
+        Top = 160
+        Width = 161
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 5
+        TextHint = 'SMTP Username'
+      end
+      object SmtpPassword: TSpTBXEdit
+        Left = 183
+        Top = 160
+        Width = 154
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        PasswordChar = '*'
+        TabOrder = 6
+        TextHint = 'SMTP Password'
+      end
+      object SmtpHost: TSpTBXEdit
+        Left = 16
+        Top = 133
+        Width = 236
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        TabOrder = 7
+        Text = 'smtp.gmail.com'
+        TextHint = 'SMTP Host'
+      end
+      object SmtpPort: TSpTBXSpinEdit
+        Left = 258
+        Top = 133
+        Width = 79
+        Height = 21
+        TabOrder = 8
+        SpinButton.Left = 61
+        SpinButton.Top = 0
+        SpinButton.Width = 14
+        SpinButton.Height = 17
+        SpinButton.Align = alRight
+        SpinButton.DrawPushedCaption = False
+        SpinButton.ExplicitLeft = 103
+        SpinOptions.MaxValue = 65535.000000000000000000
+        SpinOptions.Value = 587.000000000000000000
       end
     end
   end
@@ -220,7 +274,13 @@ object SettingsForm: TSettingsForm
       'PreviewLabel.Text'
       'ScanLabel.Text'
       'ScanSound.Text'
-      'EpsonScanLanguage.ItemIndex')
+      'EpsonScanLanguage.ItemIndex'
+      'SendMail.Checked'
+      'SmtpPassword.Text'
+      'SmtpUsername.Text'
+      'SmtpHost.Text'
+      'SmtpPort.Value'
+      'EMailAddress.Text')
     StoredValues = <>
     Left = 256
     Top = 8
